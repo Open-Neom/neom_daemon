@@ -6,23 +6,23 @@
 
 [![Pub Version](https://img.shields.io/badge/pub-v0.1.0-blue.svg)](https://pub.dev)
 [![Dart SDK](https://img.shields.io/badge/Dart-3.0+-0175C2.svg)](https://dart.dev)
-[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows%20%7C%20Web%20%7C%20Mobile-purple.svg)]()
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows%20%7C%20Web%20%7C%20Mobile%20%7C%20Docker-purple.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
-> **Neom Daemon** is a universal, open background server and autonomous task execution engine for **Dart & Flutter** applications in the **Neom Ecosystem** (Itzli, Neom DAW, PDF Readers, EEG Processors, Games, and VR/AR).
+> **Neom Daemon** is a universal, open background server and autonomous task execution engine for **Dart & Flutter** applications across the entire **Neom Ecosystem** (Itzli, Neom DAW, PDF Readers, EEG Processors, Games, VR/AR, Commerce, and Cloud Nodes).
 
 ---
 
 ## 🌟 Why Neom Daemon?
 
-Building background services, cross-device controllers, or local AI agent nodes in Flutter currently requires stitching together multiple unintegrated packages. **Neom Daemon** provides a turnkey, production-ready solution that turns any Dart or Flutter process into a secure background node server.
+Building background services, cross-device controllers, or local AI agent nodes in Flutter currently requires stitching together multiple unintegrated packages. **Neom Daemon** provides a turnkey, production-ready solution that turns any Dart or Flutter process into a secure, multi-platform background node server.
 
-### Key Features
+### Core Features
 - 🔌 **Configurable Port Binding**: Run on the default port (`8392`), bind to any custom user-defined port, or specify port `0` for dynamic OS assignment.
 - 🛡️ **Defense-in-Depth Security (`DaemonCommandRouter`)**: Built-in safety checks blocking dangerous system commands before execution.
 - 📊 **Telemetry & Health Checks**: Exposes `/status` and `/health` JSON endpoints reporting CPU, RAM, active task count, and uptime.
 - 🚀 **Decoupled Architecture**: Clean separation between server/host runtime (`neom_daemon`) and remote control client UI (`neom_rc`).
-- ⚡ **Pure Dart Native Execution**: Extremely fast `dart:io` engine with zero heavy framework dependencies.
+- 🌐 **Multi-Platform Pure Dart Engine**: Runs seamlessly on Desktop, Mobile, Headless Linux Servers, Docker Containers, and Standalone VR Headsets (Android kernel).
 
 ---
 
@@ -87,20 +87,17 @@ void main() async {
 }
 ```
 
-### 4. Executing Commands Safely
+---
 
-```dart
-void main() async {
-  final router = DaemonCommandRouter();
-  final result = await router.dispatch('git status');
+## 💻 Multi-Platform Capabilities Matrix
 
-  if (result.isSuccess) {
-    print('Output:\n${result.stdout}');
-  } else {
-    print('Error:\n${result.stderr}');
-  }
-}
-```
+| Platform | Primary Capabilities & Use Cases |
+| :--- | :--- |
+| **Desktop** *(macOS, Win, Linux)* | Local AI agent node, shell execution, VST audio sandboxing, GGUF model warm-loading. |
+| **Mobile** *(Android, iOS)* | BLE biometric sensor relay, background offline transaction sync, notification queue. |
+| **Server / Cloud** *(Docker, Linux)* | Headless node server, vector RAG database indexer (`saia_turbovec`), API gateway. |
+| **VR / AR** *(Meta Quest, Android-based)* | Spatial head tracking & 6DoF controller telemetry streaming (`vrlizate`). |
+| **IoT / Embedded** *(Raspberry Pi)* | Physical GPIO pin hardware control, sensor monitoring, ambient environment integration. |
 
 ---
 
@@ -122,11 +119,33 @@ void main() async {
 
 ---
 
-## 🛣️ Roadmap
+## 🛣️ Expanded Implementation Roadmap
 
-- [ ] **v0.2.0**: Automatic mDNS / ZeroConf service discovery (`_neom-daemon._tcp.local`).
-- [ ] **v0.3.0**: Real-time WebSockets streaming for `stdout`/`stderr` logs and live telemetry (`/ws/logs`).
-- [ ] **v1.0.0**: Declarative Security Sandboxing (`ReadOnly`, `RestrictedWorkspace`, `FullControl`).
+### 📍 Phase 1: Core Foundation (`v0.1.0`) — *Current Release*
+- [x] Pure Dart HTTP/IPC server on configurable custom/dynamic ports.
+- [x] Basic security command router (`DaemonCommandRouter`) with anti-destructive filters.
+- [x] Hardware telemetry JSON endpoints (`/status`, `/health`).
+- [x] Integration with `neom_cli` shell executor.
+
+### 📍 Phase 2: Discovery & Real-Time Communications (`v0.2.0`)
+- [ ] **mDNS / ZeroConf Auto-Discovery**: Automatic network broadcasting (`_neom-daemon._tcp.local`) so mobile & desktop clients discover daemon instances without manual IP/port configuration.
+- [ ] **Real-Time WebSockets (`/ws/logs`, `/ws/telemetry`)**: Stream `stdout`/`stderr` logs and CPU/RAM usage live to connected client apps.
+- [ ] **mTLS & HMAC Token Handshake**: Encrypted client-daemon authentication pairing protocol.
+
+### 📍 Phase 3: Domain & Sensor Integrations (`v0.3.0`)
+- [ ] **Audio & VST Plugin Sandboxing (`neom_vst` / `neom_sound`)**: Isolated worker processes for VST/AU audio plugins to prevent DAW main UI crashes.
+- [ ] **BLE Sensor & Biometric Streaming (`neom_ble` / `neom_biochip`)**: Stream EEG, heart-rate, and gyroscope sensor data via OSC/WebSockets.
+- [ ] **VR & Spatial Tracking Relay (`vrlizate`)**: Broadcast 6DoF spatial head-tracking data from standalone VR headsets to desktop rendering nodes.
+
+### 📍 Phase 4: Enterprise & AI Operations (`v0.4.0`)
+- [ ] **Vector RAG & Memory Server (`saia_turbovec`)**: Background vector embedding and indexing of chat logs, codebases, and documents (< 10ms semantic queries).
+- [ ] **Offline Sync & Transaction Queue (`neom_commerce`)**: Resilient background transaction queueing with automatic cloud conflict resolution.
+- [ ] **Model Warm-Loading & GGUF Cache Manager**: Background warm-loading of GGUF/Ollama neural models into unified system RAM.
+
+### 📍 Phase 5: Production Maturity (`v1.0.0`)
+- [ ] **Declarative Security Sandboxing**: Pre-packaged permission profiles (`ReadOnly`, `RestrictedWorkspace`, `FullControl`).
+- [ ] **Isolate Worker Pool Manager**: Multi-threaded isolate pool orchestration leveraging Apple Silicon M-series & multi-core CPUs.
+- [ ] **Official pub.dev Package Publication**.
 
 ---
 
