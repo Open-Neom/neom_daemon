@@ -1,0 +1,29 @@
+name: neom_daemon
+description: "Universal background daemon server and task engine for Neom applications (Itzli, Neom DAW, Lectores PDF, EEG, Juegos)."
+version: 1.0.0
+publish_to: none
+homepage: https://github.com/Open-Neom/neom_daemon
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sint:
+    git:
+      url: git@github.com:Open-Neom/sint.git
+  neom_core:
+    path: ../../main/neom_core
+  neom_cli:
+    path: ../../ai/neom_cli
+  neom_files:
+    path: ../../ai/neom_files
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
