@@ -15,35 +15,41 @@ import 'daemon_status.dart';
 class NeomDaemonServer extends SintController {
   static const int defaultPort = 8392;
 
-  final int port;
+  final int defaultConfiguredPort;
   final DaemonCommandRouter router;
 
   HttpServer? _server;
+  int _activePort = defaultPort;
   bool _isRunning = false;
   final DateTime _startedAt = DateTime.now();
 
   final RxInt _activeTaskCount = 0.obs;
 
   NeomDaemonServer({
-    this.port = defaultPort,
+    int port = defaultPort,
     DaemonCommandRouter? router,
-  }) : router = router ?? DaemonCommandRouter();
+  })  : defaultConfiguredPort = port,
+        _activePort = port,
+        router = router ?? DaemonCommandRouter();
 
   bool get isRunning => _isRunning;
+  int get port => _activePort;
   int get activeTaskCount => _activeTaskCount.value;
 
-  /// Starts the daemon HTTP server on the configured port.
-  Future<bool> start() async {
+  /// Starts the daemon HTTP server on a configurable [customPort] (defaults to [defaultConfiguredPort]).
+  Future<bool> start({int? customPort}) async {
     if (_isRunning) return true;
 
+    final targetPort = customPort ?? defaultConfiguredPort;
     try {
       _server = await HttpServer.bind(
         InternetAddress.anyIPv4,
-        port,
+        targetPort,
         shared: true,
       );
+      _activePort = _server!.port;
       _isRunning = true;
-      AppConfig.logger.i('NeomDaemonServer active on port $port');
+      AppConfig.logger.i('NeomDaemonServer active on port $_activePort');
 
       _listenRequests();
       return true;
