@@ -1,41 +1,16 @@
 import 'dart:async';
-import 'package:neom_core/app_config.dart';
 import 'package:neom_cli/neom_cli.dart';
+import 'package:neom_core/app_config.dart';
 
-/// Classifies incoming remote commands as shell-direct or AI prompts.
-enum CommandType { shellDirect, aiPrompt }
-
-/// Result of a command routed through [DaemonCommandRouter].
-class DaemonCommandResult {
-  final int exitCode;
-  final String stdout;
-  final String stderr;
-  final Duration duration;
-
-  const DaemonCommandResult({
-    required this.exitCode,
-    required this.stdout,
-    required this.stderr,
-    required this.duration,
-  });
-
-  bool get isSuccess => exitCode == 0;
-
-  Map<String, dynamic> toJson() => {
-        'exitCode': exitCode,
-        'stdout': stdout,
-        'stderr': stderr,
-        'durationMs': duration.inMilliseconds,
-      };
-}
+import '../../domain/models/command_type.dart';
+import '../../domain/models/daemon_command_result.dart';
+import '../../utils/constants/daemon_constants.dart';
 
 /// Command router for [NeomDaemonServer].
 ///
 /// Parses, validates, and executes shell and background tasks
 /// via `neom_cli` or registered domain handlers.
 class DaemonCommandRouter {
-  static const _shellPrefixes = ['\$', '!'];
-
   static final _shellPatterns = RegExp(
     r'^(ls|cd|pwd|mkdir|rmdir|rm|cp|mv|cat|echo|grep|find|chmod|chown|'
     r'touch|head|tail|wc|sort|uniq|tar|zip|unzip|curl|wget|ping|'
@@ -45,19 +20,10 @@ class DaemonCommandRouter {
     caseSensitive: false,
   );
 
-  /// Blocked commands for defense-in-depth safety
-  static const Set<String> _forbiddenPrefixes = {
-    'rm -rf /',
-    'mkfs',
-    'dd if=',
-    ':(){ :|:& };:',
-    'format c:',
-  };
-
   /// Classify a prompt as shell command or AI prompt.
   static CommandType classify(String prompt) {
     final trimmed = prompt.trim();
-    for (final prefix in _shellPrefixes) {
+    for (final prefix in DaemonConstants.shellPrefixes) {
       if (trimmed.startsWith(prefix)) return CommandType.shellDirect;
     }
     if (_shellPatterns.hasMatch(trimmed)) return CommandType.shellDirect;
@@ -67,7 +33,7 @@ class DaemonCommandRouter {
   /// Extract the raw shell command (strip prefix if present).
   static String extractShellCommand(String prompt) {
     final trimmed = prompt.trim();
-    for (final prefix in _shellPrefixes) {
+    for (final prefix in DaemonConstants.shellPrefixes) {
       if (trimmed.startsWith(prefix)) {
         return trimmed.substring(prefix.length).trim();
       }
@@ -92,7 +58,7 @@ class DaemonCommandRouter {
 
     // Safety check
     final lower = trimmed.toLowerCase();
-    for (final blocked in _forbiddenPrefixes) {
+    for (final blocked in DaemonConstants.forbiddenCommandPrefixes) {
       if (lower.startsWith(blocked)) {
         AppConfig.logger.w('DaemonCommandRouter: Blocked dangerous command "$trimmed"');
         return DaemonCommandResult(

@@ -5,38 +5,44 @@ import 'dart:io';
 import 'package:neom_core/app_config.dart';
 import 'package:sint/sint.dart';
 
-import 'daemon_command_router.dart';
-import 'daemon_status.dart';
+import '../../domain/models/daemon_status.dart';
+import '../../domain/use_cases/daemon_service.dart';
+import '../../utils/constants/daemon_constants.dart';
+import '../routers/daemon_command_router.dart';
 
 /// Universal background daemon server for Neom apps & node instances.
 ///
 /// Provides local HTTP/IPC API endpoints for background job execution,
 /// status telemetry, and command routing.
-class NeomDaemonServer extends SintController {
-  static const int defaultPort = 8392;
-
+class NeomDaemonServer extends SintController implements DaemonService {
   final int defaultConfiguredPort;
   final DaemonCommandRouter router;
 
   HttpServer? _server;
-  int _activePort = defaultPort;
+  int _activePort = DaemonConstants.defaultPort;
   bool _isRunning = false;
   final DateTime _startedAt = DateTime.now();
 
   final RxInt _activeTaskCount = 0.obs;
 
   NeomDaemonServer({
-    int port = defaultPort,
+    int port = DaemonConstants.defaultPort,
     DaemonCommandRouter? router,
   })  : defaultConfiguredPort = port,
         _activePort = port,
         router = router ?? DaemonCommandRouter();
 
+  @override
   bool get isRunning => _isRunning;
+
+  @override
   int get port => _activePort;
+
+  @override
   int get activeTaskCount => _activeTaskCount.value;
 
   /// Starts the daemon HTTP server on a configurable [customPort] (defaults to [defaultConfiguredPort]).
+  @override
   Future<bool> start({int? customPort}) async {
     if (_isRunning) return true;
 
@@ -54,13 +60,14 @@ class NeomDaemonServer extends SintController {
       _listenRequests();
       return true;
     } catch (e) {
-      AppConfig.logger.e('NeomDaemonServer failed to bind on port $port: $e');
+      AppConfig.logger.e('NeomDaemonServer failed to bind on port $targetPort: $e');
       _isRunning = false;
       return false;
     }
   }
 
   /// Stops the daemon server.
+  @override
   Future<void> stop() async {
     if (!_isRunning) return;
 
@@ -71,6 +78,7 @@ class NeomDaemonServer extends SintController {
   }
 
   /// Telemetry status snapshot.
+  @override
   DaemonStatus getStatus() {
     return DaemonStatus(
       isRunning: _isRunning,
